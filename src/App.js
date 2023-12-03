@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import RootLayout from "./pages/root";
+import ShopPage from "./pages/Shop";
+import DetailPage from "./pages/Detail";
+import CartPage from "./pages/Cart";
+import CheckoutPage from "./pages/Checkout";
+import LoginPage from "./pages/Login";
+import ErrorPage from "./pages/Error";
+import RegisterPage from "./pages/Register";
+import HomeAllPage from "./pages/HomeAll";
+import { loader as RootLoader } from "./pages/root";
+import IphoneProduct from "./component/Shop/ProductList";
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
+    loader: RootLoader,
+    id: "root",
+    children: [
+      {
+        index: true,
+        element: <HomeAllPage />,
+        id: "home",
+      },
+      {
+        path: "shop",
+        element: <ShopPage />,
+        id: "shop",
+        children: [{ path: ":shopId", element: <IphoneProduct /> }],
+      },
+      {
+        path: "detail/:productId",
+        element: <DetailPage />,
+      },
+      { path: "cart", element: <CartPage /> },
+      { path: "checkout", element: <CheckoutPage /> },
+    ],
+  },
+  { path: "register", element: <RegisterPage /> },
+  { path: "login", element: <LoginPage /> },
+]);
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

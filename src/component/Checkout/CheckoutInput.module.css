@@ -1,0 +1,40 @@
+.CheckoutInput {
+}
+
+.name-input label,
+.phone-input label,
+.email-input label,
+.name-input label {
+  text-transform: uppercase;
+  color: var(--blur-color);
+  margin: 16px 0 8px 0;
+  /* padding: 16px 0; */
+  display: block;
+}
+
+.name-input input,
+.phone-input input,
+.email-input input,
+.name-input input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.name-input,
+.phone-input,
+.email-input,
+.name-input {
+}
+
+.CheckoutInput form > button {
+  border: none;
+  padding: 10px 16px;
+  margin: 16px 0;
+  background-color: var(--text-color);
+  color: var(--white-color);
+  font-size: 1.2rem;
+  font-weight: 400;
+}
