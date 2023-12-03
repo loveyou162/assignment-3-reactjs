@@ -12,6 +12,7 @@ function Products() {
   data.forEach(function (obj) {
     priceArr.push(obj.price);
   });
+  console.log(priceArr);
   //hàm hiển thị popup
   const showPopup = (product) => {
     dispatch(uiAction.selectedProduct(product));

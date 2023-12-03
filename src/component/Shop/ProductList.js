@@ -16,11 +16,9 @@ function ProductList() {
   const data = useRouteLoaderData("root");
   //   console.log(data);
   const increment = () => {
-    console.log("ầ");
     dispatch(counterAction.increment());
   };
   const decrement = () => {
-    console.log("ádd");
     dispatch(counterAction.decrement());
   };
 
