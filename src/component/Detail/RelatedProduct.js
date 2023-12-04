@@ -16,6 +16,7 @@ function RelatedProduct(props) {
     setProduct([]);
     loadProduct();
   }, [category, data]);
+  console.log(product);
   const formatPrice = (price) => {
     // Chuyển đổi số thành chuỗi
     let priceString = price.toString();
@@ -31,7 +32,7 @@ function RelatedProduct(props) {
         {product.map((product) => (
           <li key={product._id.$oid}>
             <Link to={`/detail/${product._id.$oid}`}>
-              <img src={product.img1} alt={product.name} />
+              <img src={product.img1} alt={product.name} loading="lazy" />
               <h3>{product.name}</h3>
               <p>{formatPrice(product.price)}đ</p>
             </Link>

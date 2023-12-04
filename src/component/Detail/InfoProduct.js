@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 function InfoProduct() {
   // Sử dụng hook useParams để lấy các tham số từ URL
   const params = useParams();
-  // Lấy dữ liệu từ root sử dụng hook useRouteLoaderData
   const data = useRouteLoaderData("root");
   // Sử dụng Redux hooks để lấy và dispatch actions
   const dispatch = useDispatch();
@@ -27,7 +26,7 @@ function InfoProduct() {
       setProductData(selectedProduct);
     }
   }, [params.productId, data]);
-
+  console.log(productData);
   // Hàm xử lý khi nhấn nút "Add to cart"
   const addToCartHandler = () => {
     // Tính toán thông tin giỏ hàng mới
@@ -73,7 +72,6 @@ function InfoProduct() {
       items: updateItems,
     };
     console.log("newCart: ", newCart);
-    // dispatch(cartActions.ADD_CART(newCart));
     dispatch(cartActions.updateCart(newCart));
   };
   // Nếu sản phẩm chưa được tải, hiển thị thông báo "Loading..."

@@ -43,7 +43,7 @@ function Products() {
         {/* hiển thị danh sách các sản phẩm */}
         {limitedData.map((product) => (
           <li key={product.id} onClick={() => showPopup(product)}>
-            <img src={product.img1} alt={product.name} />
+            <img src={product.img1} alt={product.name} loading="lazy" />
             <h3>{product.name}</h3>
             <p>{formatPrice(product.price)}đ</p>
           </li>
