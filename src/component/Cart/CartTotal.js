@@ -4,7 +4,8 @@ import classes from "./CartTotal.module.css";
 const CartTotal = () => {
   const totalAmount = useSelector((state) => state.cart.totalAmount);
   console.log(totalAmount);
-  //hàm thêm dấu chấm vào giá tiền
+  localStorage.setItem("totalAmount", totalAmount);
+  // hàm thêm dấu chấm vào giá tiền
   const formatPrice = (price) => {
     // Chuyển đổi số thành chuỗi
     let priceString = price.toString();

@@ -20,7 +20,7 @@
 .directory {
   display: flex;
   gap: 8px;
-  padding: 24px 0;
+  padding: 10px 0;
 }
 .directory h4 {
   text-transform: uppercase;
@@ -70,8 +70,9 @@
   border: 1px solid #ccc;
   padding: 8px 16px;
   width: 40%;
-  display: flex;
-  gap: 52px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* gap: 52px; */
   color: var(--blur-color);
 }
 

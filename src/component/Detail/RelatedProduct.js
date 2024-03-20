@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 function RelatedProduct(props) {
   const data = useRouteLoaderData("root");
   const [product, setProduct] = useState([]);
-
   const category = props.category;
   useEffect(() => {
     function loadProduct() {
@@ -16,7 +15,14 @@ function RelatedProduct(props) {
     setProduct([]);
     loadProduct();
   }, [category, data]);
-  console.log(product);
+  // Di chuyển đến đầu trang khi cuộn
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Làm mềm dịch chuyển
+    });
+  }
+  //hàm định dạng giá tiền
   const formatPrice = (price) => {
     // Chuyển đổi số thành chuỗi
     let priceString = price.toString();
@@ -29,12 +35,12 @@ function RelatedProduct(props) {
       <h2>Related Products</h2>
       <ul className={classes["product-list"]}>
         {/* hiển thị danh sách các sản phẩm */}
-        {product.map((product) => (
-          <li key={product._id.$oid}>
-            <Link to={`/detail/${product._id.$oid}`}>
-              <img src={product.img1} alt={product.name} loading="lazy" />
-              <h3>{product.name}</h3>
-              <p>{formatPrice(product.price)}đ</p>
+        {product.map((item) => (
+          <li key={item._id}>
+            <Link to={`/detail/${item._id}`} onClick={scrollToTop}>
+              <img src={item.img1} alt={item.name} loading="lazy" />
+              <h3>{item.name}</h3>
+              <p>{formatPrice(item.price)}đ</p>
             </Link>
           </li>
         ))}

@@ -1,37 +1,97 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import classes from "./CartProduct.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { cartActions } from "../../store.js/cartSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 const CartProduct = () => {
   const navigate = useNavigate();
   const previousPage = () => {
     navigate(-1);
   };
-  const cartItemData = useSelector((state) => state.cart.items);
-
+  //state này chỉ có tác dụng cập để useEffect render lại
+  const [reRender, setRender] = useState(0);
+  const [cartItemData, setCartItemData] = useState([]);
+  console.log(reRender);
+  //hàm option của http
+  const optionAxios = {
+    headers: { "Content-Type": "application/json" },
+    withCredentials: true,
+  };
   const dispatch = useDispatch();
+  //load dữ liệu cart khi có sự thay đổi về số lượng
   useEffect(() => {
-    // Lấy dữ liệu từ localStorage khi component được mount
-    const localStorageData = JSON.parse(localStorage.getItem("cartItem"));
-    console.log(localStorageData);
-    if (localStorageData) {
-      dispatch(
-        cartActions.updateCart({
-          totalQuantity: localStorageData.length,
-          items: localStorageData,
-        })
-      );
-    }
-  }, [dispatch]);
+    axios
+      .get("http://localhost:5000/shop/cart", optionAxios)
+      .then((response) => {
+        console.log(response.data);
+        setCartItemData(response.data);
+        dispatch(cartActions.updateCart(response.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [dispatch, reRender]);
+  console.log("test");
   const increment = (itemId) => {
-    dispatch(cartActions.addCart(itemId));
+    axios
+      .post(
+        `http://localhost:5000/shop/add-cart`,
+        { productId: itemId },
+        optionAxios
+      )
+      .then((response) => {
+        console.log(response.data);
+        // Xử lý kết quả nếu cần
+        setRender(response.data);
+      })
+      .catch((error) => {
+        // Xử lý lỗi nếu có
+        console.error("Error sending cart data:", error);
+      });
   };
   const decrement = (itemId) => {
-    dispatch(cartActions.decrement(itemId));
+    axios
+      .post(
+        "http://localhost:5000/shop/decrement-cart",
+        { productId: itemId },
+        optionAxios
+      )
+      .then((response) => {
+        console.log(response.data);
+        if (response.data) {
+          setRender(response.data);
+        } else {
+          const updatedCartItems = cartItemData.filter(
+            (item) => item.productId._id !== itemId
+          );
+          console.log(updatedCartItems);
+          setCartItemData(updatedCartItems);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const remove = (itemId) => {
-    dispatch(cartActions.remove_cart(itemId));
+    axios
+      .post(
+        "http://localhost:5000/shop/delete-cart",
+        { productId: itemId },
+        optionAxios
+      )
+      .then((response) => {
+        const updatedCartItems = cartItemData.filter(
+          (item) => item.productId._id !== itemId
+        );
+        console.log(updatedCartItems);
+        setCartItemData(updatedCartItems);
+        console.log(response.data);
+        setRender(response.data.quantity);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   //hàm thêm dấu chấm vào giá tiền
@@ -57,33 +117,33 @@ const CartProduct = () => {
         </thead>
         <tbody>
           {cartItemData.map((item) => (
-            <tr className={classes["cart-component"]} key={item.id}>
+            <tr className={classes["cart-component"]} key={item._id}>
               <td className={classes["cart__img-product"]}>
-                <img src={item.image} alt="" />
+                <img src={item.productId.img1} alt="" />
               </td>
               <td className={classes["cart__price-product"]}>
-                <p>{item.product}</p>
+                <p>{item.productId.name}</p>
               </td>
-              <td>{formatPrice(item.price)} VND</td>
+              <td>{formatPrice(item.productId.price)} VND</td>
               <td>
                 <div className={classes["cart-page-number"]}>
                   <div className={classes["page-number"]}>
-                    <button onClick={() => decrement(item.id)}>
+                    <button onClick={() => decrement(item.productId._id)}>
                       <ion-icon name="caret-back-outline"></ion-icon>
                     </button>
                     <p>{item.quantity}</p>
-                    <button onClick={() => increment(item.id)}>
+                    <button onClick={() => increment(item.productId._id)}>
                       <ion-icon name="caret-forward-outline"></ion-icon>
                     </button>
                   </div>
                 </div>
               </td>
               <td>
-                <p>{formatPrice(item.quantity * item.price)} VND</p>
+                <p>{formatPrice(item.quantity * item.productId.price)} VND</p>
               </td>
               <td className={classes["cart-btn-trash"]}>
                 {/* nút xóa sản phẩm */}
-                <button onClick={() => remove(item.id)}>
+                <button onClick={() => remove(item.productId._id)}>
                   <i className="fa-solid fa-trash-can"></i>
                 </button>
               </td>

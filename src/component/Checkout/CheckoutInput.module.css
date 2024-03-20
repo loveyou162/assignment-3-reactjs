@@ -1,4 +1,5 @@
 .CheckoutInput {
+  position: relative;
 }
 
 .name-input label,
@@ -37,4 +38,29 @@
   color: var(--white-color);
   font-size: 1.2rem;
   font-weight: 400;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.CheckoutInput form > button:hover {
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(75, 75, 75, 0.808);
+  color: #000000;
+  background: #ffffff;
+}
+
+.btn__view-order {
+  position: absolute;
+  bottom: 16px;
+  right: 0;
+  padding: 14px 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+.btn__view-order:hover {
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(75, 75, 75, 0.808);
+  color: #ffffff;
+  background: #000;
 }

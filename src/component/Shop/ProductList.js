@@ -12,7 +12,6 @@ function ProductList() {
 
   const [product, setProduct] = useState([]);
   const params = useParams();
-  console.log(params.shopId);
   const data = useRouteLoaderData("root");
   //   console.log(data);
   const increment = () => {
@@ -67,7 +66,7 @@ function ProductList() {
           {/* hiển thị danh sách các sản phẩm */}
           {product.map((product) => (
             <li key={product.id}>
-              <Link to={`/detail/${product._id.$oid}`}>
+              <Link to={`/detail/${product._id}`}>
                 <img src={product.img1} alt={product.name} />
                 <h3>{product.name}</h3>
                 <p>{formatPrice(product.price)}đ</p>

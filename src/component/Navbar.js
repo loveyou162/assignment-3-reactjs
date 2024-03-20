@@ -1,19 +1,18 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import classes from "./Navbar.module.css";
-import { useDispatch, useSelector } from "react-redux";
-import { authAction } from "../store.js/auth-slice";
+import { useSelector } from "react-redux";
+// import { authAction } from "../store.js/auth-slice";
 import { useEffect, useState } from "react";
+// import { Cookies } from "react-cookie";
+import axios from "axios";
 function Navbar() {
-  const dispatch = useDispatch();
   const isLogout = useSelector((state) => state.auth.islogin);
-
-  console.log(isLogout);
   const [isLogouted, setIsLogouted] = useState(null);
   const [isName, setIsName] = useState("");
   //dùng useEffect để thực hiện lấy giá trị từ currentUser để lưu trạng thái login và logout khi isLogout thay đổi
   useEffect(() => {
-    setIsLogouted(JSON.parse(localStorage.getItem("curentUser")));
-    setIsName(localStorage.getItem("curentName"));
+    setIsLogouted(localStorage.getItem("currenUser"));
+    setIsName(JSON.parse(localStorage.getItem("currentName")));
   }, [isLogout]);
   console.log(isLogouted);
   console.log(isName);
@@ -27,10 +26,25 @@ function Navbar() {
     navigate("/login");
   };
   //hàm thực hiện hành động logout
-  const logoutHanler = () => {
-    localStorage.setItem("curentUser", false);
-    localStorage.removeItem("curentName");
-    dispatch(authAction.logout());
+  const logoutHanler = async () => {
+    localStorage.setItem("currenUser", false);
+    localStorage.removeItem("currentName");
+    localStorage.removeItem("roomId");
+    try {
+      axios
+        .get("http://localhost:5000/shop/logout", {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.error("Error logging in:", error);
+        });
+    } catch (err) {
+      console.log(err);
+    }
     navigate("/login");
   };
   return (
@@ -78,11 +92,11 @@ function Navbar() {
             <div className={classes["box-account"]}>
               <p>
                 <i className="fa-solid fa-user"></i>
-                {isName}
+                {isName.fullname}
                 <i className="fa-solid fa-angle-down"></i>
               </p>
               <button onClick={logoutHanler}>
-                <p>{"(Logout)"}</p>
+                <p>Logout</p>
               </button>
             </div>
           )}

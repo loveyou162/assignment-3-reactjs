@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import classes from "./AuthForm.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function AuthForm() {
   const navigate = useNavigate();
@@ -22,54 +22,48 @@ function AuthForm() {
     }));
   };
 
-  //hàm validate dữ liệu
-  const validateForm = () => {
-    const { fullname, email, password, phone } = formData;
-    //kiểm tra xem tất cả các ô có được điền đủ hay không
-    if (!fullname || !email || !password || !phone) {
-      setError("Vui lòng nhập đủ thông tin");
-      return false;
-    } else if (password.length < 8) {
-      //kiểm tra password có đủ 8 kí tự không
-      setError("Password phải có ít nhất 8 kí tự");
-      return false;
-    }
-    //kiểm tra xem email đã được sử dụng chưa
-    const userArr = JSON.parse(localStorage.getItem("userArr")) || [];
-    if (userArr.some((user) => user.email === email)) {
-      setError("Email đã được sử dụng.");
-      return false;
-    }
-    return true;
-  };
-
   //hàm gửi hành động của form
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     console.log("click");
     e.preventDefault();
 
-    if (validateForm()) {
-      const { fullname, email, password, phone } = formData;
-      const newUser = { fullname, email, password, phone };
-
-      const userArr = JSON.parse(localStorage.getItem("userArr")) || [];
-      userArr.push(newUser);
-      localStorage.setItem("userArr", JSON.stringify(userArr));
-      //reset input
-      setFormData({
-        fullname: "",
-        email: "",
-        password: "",
-        phone: "",
+    try {
+      const csrfReq = await fetch("http://localhost:5000/shop/some-route");
+      if (!csrfReq.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const csrf = await csrfReq.json();
+      const csrfToken = csrf.csrfToken;
+      console.log(csrfToken);
+      const response = await fetch("http://localhost:5000/shop/signup", {
+        method: "POST",
+        headers: {
+          "X-CSRF-TOKEN": csrfToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...formData, role: "client" }),
       });
-      setError("");
+
+      if (!response.ok) {
+        throw new Error("Failed to sign up");
+      }
+      const resData = await response.json();
+      console.log(resData);
+
       // chuyển hướng sang login page
-      navigate("/login");
+      if (resData.isSignup) {
+        navigate("/login");
+      } else {
+        setError(resData.errMessage ? resData.errMessage[0].msg : null);
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
+
   return (
     <>
-      <form onSubmit={submitHandler} className={classes.form}>
+      <form onSubmit={submitHandler} className={classes.form} noValidate>
         <h1>Sign up</h1>
         <div className={classes["group-input"]}>
           <p>

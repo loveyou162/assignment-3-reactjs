@@ -6,7 +6,7 @@ const Popup = (props) => {
   if (!selectedProduct) {
     return null;
   }
-  console.log({ show, selectedProduct });
+
   return (
     <div className={`${classes.popup} ${show ? classes.show : ""}`}>
       {show && (
@@ -22,7 +22,7 @@ const Popup = (props) => {
               <p>{formatPrice(selectedProduct.price)}đ</p>
               <p className={classes.description}>{selectedProduct.long_desc}</p>
               <Link
-                to={`/detail/${selectedProduct._id.$oid}`}
+                to={`/detail/${selectedProduct._id}`}
                 className={classes.btnView}
               >
                 <i className="fa-solid fa-cart-shopping"></i>

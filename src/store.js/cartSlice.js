@@ -1,76 +1,93 @@
 import { createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+// function updateTotalAmount(state) {
+//   state.totalAmount = state.items.reduce(
+//     (total, item) => total + item.quantity * item.price,
+//     0
+//   );
+//   localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
+// }
 
-function updateTotalAmount(state) {
-  state.totalAmount = state.items.reduce(
-    (total, item) => total + item.quantity * item.price,
-    0
-  );
-  localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
-}
-
-const updateLocalStorage = (items) => {
-  localStorage.setItem("cartItem", JSON.stringify(items));
-};
+//
 
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
     items: [],
-    totalQuantity: 0,
+    totalQuantity: null,
     totalAmount: 0,
     cartItemData: JSON.parse(localStorage.getItem("cartItem")) || [],
   },
   reducers: {
     updateCart(state, action) {
-      const { totalQuantity, items } = action.payload;
-      state.totalQuantity = totalQuantity;
-      state.items = items;
-      updateLocalStorage(items);
-      updateTotalAmount(state);
+      console.log("update");
+      const item = action.payload;
+      const totalArr = item.map((item) => item.productId.price * item.quantity);
+      console.log(totalArr);
+      const totalAmount =
+        totalArr.length > 0 ? totalArr.reduce((acc, item) => acc + item) : 0;
+      console.log(totalAmount);
+      state.totalAmount = totalAmount;
     },
     addCart(state, action) {
       const itemId = action.payload;
-      console.log(itemId);
-      const existingItem = state.items.find((item) => item.id === itemId);
-      console.log(existingItem);
-      state.totalQuantity++;
-      //nếu sản phẩm chưa tồn tại trong giỏ hàng , thêm sản phẩm mới vào
-      if (!existingItem) {
-        state.items.push({
-          id: itemId,
-          image: itemId.image,
-          product: itemId.product,
-          price: 1,
-          quantity: itemId.quantity,
-          total: itemId.price,
+
+      axios
+        .post(
+          `http://localhost:5000/shop/add-cart`,
+          { productId: itemId },
+          {
+            headers: { "Content-type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          // Xử lý kết quả nếu cần
+          console.log(response.data);
+          // state.totalQuantity = response.data.quantity;
+        })
+        .catch((error) => {
+          // Xử lý lỗi nếu có
+          console.error("Error sending cart data:", error);
         });
-      } else {
-        //nếu sản phẩm đã tồn tại tăng số lượng và cập nhật tổng giá tiền
-        existingItem.quantity++;
-        existingItem.total = existingItem.total + itemId.price;
-      }
-      updateTotalAmount(state);
-      updateLocalStorage(state.items);
     },
     decrement(state, action) {
       const itemId = action.payload;
-      const existingItem = state.items.find((item) => item.id === itemId);
-      // giảm tổng số lượng trong giỏ hàng
+      axios
+        .post(
+          "http://localhost:5000/shop/decrement-cart",
+          { productId: itemId },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          console.log(response.data.quantity);
+          state.totalQuantity = response.data.quantity;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       state.totalQuantity--;
-      if (existingItem.quantity === 1) {
-        state.items = state.items.filter((item) => item.id !== itemId);
-      } else {
-        existingItem.quantity--;
-        existingItem.total -= existingItem.price;
-      }
-      updateTotalAmount(state);
-      updateLocalStorage(state.items);
     },
     remove_cart(state, action) {
       const itemId = action.payload;
-      state.items = state.items.filter((item) => item.id !== itemId);
-      updateTotalAmount(state);
-      updateLocalStorage(state.items);
+      axios
+        .post(
+          "http://localhost:5000/shop/delete-cart",
+          { productId: itemId },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
 });

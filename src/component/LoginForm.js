@@ -1,17 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import classes from "./AuthForm.module.css";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { authAction } from "../store.js/auth-slice";
+import axios from "axios";
 function AuthForm() {
-  const dispatch = useDispatch();
   //dùng navigate để tạo chức năng điều hướng
   const navigate = useNavigate();
   const [formLoginData, setFormLogin] = useState({
     email: "",
     password: "",
   });
-
   const [error, setError] = useState("");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,46 +17,44 @@ function AuthForm() {
       [name]: value,
     }));
   };
-  //hàm kiểm tra dữ liệu
-  const validateForm = () => {
-    const { email, password } = formLoginData;
-    //kiểm tra xem tất cả các ô có được điền đủ hay không
-    if (!email || !password) {
-      setError("Vui lòng nhập đủ thông tin");
-      return false;
-    }
 
-    return true;
-  };
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-
-    const { email, password } = formLoginData;
-    if (validateForm()) {
-      const userArr = JSON.parse(localStorage.getItem("userArr")) || [];
-      console.log(userArr[0].email);
-      const loggedInUser = userArr.find(
-        (user) => user.email === email && user.password === password
-      );
-      if (loggedInUser) {
-        console.log(loggedInUser);
-        localStorage.setItem("curentName", loggedInUser.fullname);
-        localStorage.setItem("curentUser", true);
-        dispatch(authAction.ON_LOGIN());
-        navigate("/");
-      } else {
-        alert("Sai email hoặc mật khẩu");
-        setFormLogin((prevData) => ({
-          ...prevData,
-          password: "",
-        }));
-      }
+    try {
+      axios
+        .post(
+          "http://localhost:5000/shop/login",
+          formLoginData, // Truyền formData trực tiếp, không cần JSON.stringify
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          // nếu có ísLogin set localstorage
+          if (response.data.isLogin) {
+            localStorage.setItem(
+              "currentName",
+              JSON.stringify(response.data.user)
+            );
+            localStorage.setItem("currenUser", true);
+            navigate("/");
+          } else {
+            console.log(response.data.errMessage[0].msg);
+            setError(response.data.errMessage[0].msg);
+          }
+        })
+        .catch((error) => {
+          console.error("Error logging in:", error);
+        });
+    } catch (err) {
+      console.log(err);
     }
   };
 
   return (
     <>
-      <form className={classes.form}>
+      <form className={classes.form} noValidate>
         <h1>Sign in</h1>
         <div className={classes["group-input"]}>
           <p>

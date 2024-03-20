@@ -1,9 +1,27 @@
+import { useSelector } from "react-redux";
 import classes from "./CheckoutTotal.module.css";
-
+import { useRouteLoaderData } from "react-router";
+import { useEffect, useState } from "react";
+import axios from "axios";
 const CheckoutTotal = () => {
+  const [productItem, setProductItem] = useState([]);
+  const optionAxios = {
+    headers: { "Content-Type": "application/json" },
+    withCredentials: true,
+  };
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/shop/cart", optionAxios)
+      .then((response) => {
+        console.log(response.data);
+        setProductItem(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   //lấy dữ liệu từ localStorage
-  const productItem = JSON.parse(localStorage.getItem("cartItem"));
-  console.log(productItem);
   const total = JSON.parse(localStorage.getItem("totalAmount"));
   console.log(total);
   const formatPrice = (price) => {
@@ -18,10 +36,13 @@ const CheckoutTotal = () => {
     <div className={classes.CheckoutTotal}>
       <h2>Your order</h2>
       {productItem.map((item) => (
-        <div className={classes["checkout-total__subtotal"]} key={item.id}>
-          <h4>{item.product}</h4>
+        <div
+          className={classes["checkout-total__subtotal"]}
+          key={item.productId._id}
+        >
+          <h4>{item.productId.name}</h4>
           <p>
-            {formatPrice(item.price)} VND x{item.quantity}
+            {formatPrice(item.productId.price)} VND x{item.quantity}
           </p>
         </div>
       ))}
